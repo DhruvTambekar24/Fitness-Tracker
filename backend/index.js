@@ -22,10 +22,8 @@ if (!client_id || !client_secret || !redirect_uris) {
   process.exit(1);
 }
 
-// const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, "http://localhost:8000/auth/google/callback");
 
-// Initialize Appwrite Client
 const client = new Client();
 client.setEndpoint("https://cloud.appwrite.io/v1")
   .setProject(process.env.PROJECT_ID)
@@ -33,7 +31,6 @@ client.setEndpoint("https://cloud.appwrite.io/v1")
 
 const database = new Databases(client);
 
-// Google Fitness API Scopes
 const SCOPES = [
   "https://www.googleapis.com/auth/fitness.activity.read",
   "https://www.googleapis.com/auth/fitness.blood_glucose.read",
