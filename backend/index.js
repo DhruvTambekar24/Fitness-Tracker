@@ -8,7 +8,6 @@ require("dotenv").config();
 const fs = require("fs");
 
 
-// Load Google OAuth Credentials
 let credentials;
 try {
   credentials = JSON.parse(fs.readFileSync("./creds.json"));
@@ -54,7 +53,6 @@ app.use(session({ secret: secretKey, resave: false, saveUninitialized: true }));
 
 let userProfileData = null;
 
-// Fetch Google User Profile
 async function getUserProfile(auth) {
   try {
     const service = google.people({ version: "v1", auth });
@@ -78,7 +76,6 @@ app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
-// Google OAuth Login
 app.get("/auth/google", (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({ access_type: "offline", scope: SCOPES });
   res.json({ authUrl });
@@ -91,7 +88,6 @@ app.get("/auth/user", (req, res) => {
   res.json(req.session.userProfile); // Send user profile as response
 });
 
-// Google OAuth Callback
 // app.get("/auth/google/callback", async (req, res) => {
 //   const { code } = req.query;
 //   if (!code) {
@@ -136,7 +132,6 @@ app.get("/auth/google/callback", async (req, res) => {
     // console.log("User authenticated:", profile);
     // return res.json(profile);
 
-    // 🔥 FIXED: Redirect user with correct userID
     res.redirect(`http://localhost:5173/dashboard?user=${profile.userID}`);
   } catch (error) {
     console.error("Error retrieving access token:", error);
@@ -145,7 +140,7 @@ app.get("/auth/google/callback", async (req, res) => {
 });
 
 app.get("/fetch-data", async (req, res) => {
-  console.log("Session Data:", req.session); // Debugging
+  console.log("Session Data:", req.session); 
 
   const userProfile = req.session.userProfile;
   if (!userProfile) {
@@ -179,7 +174,6 @@ app.get("/fetch-data", async (req, res) => {
       },
     });
 
-    // 🔥 Extract step count & heart rate correctly
     const formattedData = response.data.bucket.map((data) => {
       const stepData = data.dataset.find(d => d.dataSourceId.includes("step_count"));
       const heartRateData = data.dataset.find(d => d.dataSourceId.includes("heart_rate"));
@@ -248,8 +242,6 @@ app.get("/fetch-data", async (req, res) => {
 //   }
 // });
 
-// Save User Data to Appwrite
-
 const saveUserDataToAppwrite = async (userData) => {
   try {
     const users = await database.listDocuments(process.env.DATABASE_ID, process.env.COLLECTION_ID);
@@ -269,7 +261,7 @@ const saveUserDataToAppwrite = async (userData) => {
   }
 };
 
-// Save Fitness Data to Appwrite
+
 const saveFitnessDataToAppwrite = async (fitnessData) => {
   try {
     await database.createDocument(process.env.DATABASE_ID, process.env.FITNESS_COLLECTION_ID, ID.unique(), fitnessData);
